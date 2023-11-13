@@ -50,10 +50,12 @@ namespace Transaction
                 Range sourceRange = sourceSheet.Range[sourceSheet.Cells[1, 1], sourceSheet.Cells[1, sourceSheet.UsedRange.Column]];
                 int sourceLastRow = sourceSheet.Cells[sourceSheet.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row ;
 
-               // var FilterDate = new object[]
-               //{
-               //  "10/23/2023"
-               //};
+
+                var date = "10/23/2023";
+                var FilterDate = new object[]
+               {
+                 date
+               };
                 var SouthFilterList = new object[]
                {
                 "D01",
@@ -66,27 +68,41 @@ namespace Transaction
                 "D09",
                 "D11"
                };
-                //sourceRange.AutoFilter(3, FilterDate, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(3, FilterDate, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
                 sourceRange.AutoFilter(7, SouthFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                var rangeSouth = sourceSheet.Range["A3:X" + sourceLastRow];
-                rangeSouth.Copy(Type.Missing);
-
-               
+                var rangeSouthFr = sourceSheet.Range["A3:E" + sourceLastRow];
+                rangeSouthFr.Copy(Type.Missing);
                 targetSouth.Cells[southLastRow, 1].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
+                var rangeSouthSc = sourceSheet.Range["G3:H" + sourceLastRow];
+                rangeSouthSc.Copy(Type.Missing);
+                targetSouth.Cells[southLastRow, 6].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
                 targetworkbook.Save();
 
                 sourceSheet.AutoFilterMode = false;
-                var NorthFilterList = new object[]
-               {
-                "CJ NORTH"
-               };
-                //sourceRange.AutoFilter(3, FilterDate, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                sourceRange.AutoFilter(7, NorthFilterList, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
-                var rangeNorth = sourceSheet.Range["A3:X" + sourceLastRow];
-                rangeNorth.Copy(Type.Missing);
 
+                var northFilterlist = new object[]
+               {
+                 "cj north"
+               };
+                sourceRange.AutoFilter(3, FilterDate, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                sourceRange.AutoFilter(7, northFilterlist, XlAutoFilterOperator.xlFilterValues, Type.Missing, true);
+                var rangeNorthFr = sourceSheet.Range["A3:E" + sourceLastRow];
+                rangeNorthFr.Copy(Type.Missing);
                 targetNorth.Cells[northLastRow, 1].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
+                var rangeNorthSc = sourceSheet.Range["G3:G" + sourceLastRow];
+                rangeNorthSc.Copy(Type.Missing);
+                targetNorth.Cells[northLastRow, 18].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
+                var rangeNorthTh= sourceSheet.Range["P3:P" + sourceLastRow];
+                rangeNorthTh.Copy(Type.Missing);
+                targetNorth.Cells[northLastRow, 29].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
                 targetworkbook.Save();
+
+                sourceSheet.AutoFilterMode = false;
 
 
                 //code for date change
@@ -96,9 +112,9 @@ namespace Transaction
 
                 var dateString = "10/24/2023";
 
-                DateTime date = DateTime.ParseExact(dateString, "MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture);
+                DateTime dateObj = DateTime.ParseExact(dateString, "MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture);
 
-                if (date.DayOfWeek == DayOfWeek.Tuesday)
+                if (dateObj.DayOfWeek == DayOfWeek.Tuesday)
                 {
                     dateCell.Value = date;
                     targetworkbook.Save();
@@ -110,9 +126,14 @@ namespace Transaction
                 Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
                 Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
 
-                storeList.Copy(destinationSheet);
+                destinationSheet.Cells.Clear();
 
-                storeWorkBook.Save();
+                storeList.Cells.Copy(Type.Missing);
+
+                Excel.Range destinationRange = destinationSheet.Cells;
+                destinationRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                targetworkbook.Save();
 
 
             }
