@@ -29,14 +29,14 @@ namespace Transaction
 
             Excel.Application storeApp = new Excel.Application();
             storeApp.Visible = true;
-            string storeFilepath = @"C:\Users\Public\Documents\StoreList.xlsx";
+            string storeFilepath = @"C:\Users\Public\Documents\StoreList - Copy.xlsx";
             Excel.Workbook storeWorkBook = storeApp.Workbooks.Open(storeFilepath);
 
 
             try
             {
 
-                //data transfer from one sales workbook to transaction workbook
+                /*//data transfer from one sales workbook to transaction workbook
 
                 Worksheet sourceSheet = workbook.Worksheets["2023"];
                 Worksheet targetSouth = targetworkbook.Worksheets["South 23"];
@@ -119,6 +119,7 @@ namespace Transaction
                     dateCell.Value = date;
                     targetworkbook.Save();
                 }
+                */
 
 
                 //copying data from storelist to transaction file
@@ -134,6 +135,34 @@ namespace Transaction
                 destinationRange.PasteSpecial(XlPasteType.xlPasteAll);
 
                 targetworkbook.Save();
+
+
+                //Dynamic transaction sheet cells change with reference to site list sheet 
+
+                Worksheet siteList = targetworkbook.Worksheets["Site List"];
+                Worksheet transaction = targetworkbook.Worksheets["Transactions 2023"];
+
+                Excel.Range transactionCellValue = transaction.Cells[19, 2];
+                var transvalue1 = transactionCellValue.Value;
+
+                Excel.Range siteCellValue = siteList.Cells[9, 1];
+                var distValue1 = siteCellValue.Value;
+
+                var value1 = distValue1[5];
+                var value2 = transvalue1[2];
+
+                if(value1 != value2)
+                {
+                    char[] transvalueChars = transvalue1.ToCharArray();
+                    transvalueChars[2] = value1;
+                    transvalue1 = new string(transvalueChars);
+
+                    transactionCellValue.Value = transvalue1;
+
+                    targetworkbook.Save();
+                }
+                
+                
 
 
             }
