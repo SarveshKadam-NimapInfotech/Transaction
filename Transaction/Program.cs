@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.Office.Interop.Excel;
 using OfficeOpenXml;
+using static OfficeOpenXml.ExcelErrorValue;
 using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Transaction
@@ -25,7 +26,7 @@ namespace Transaction
             Excel.Application targetexcelApp = new Excel.Application();
             targetexcelApp.Visible = true;
             string targetFilePath = @"C:\Users\Nimap\Downloads\backups\Daily Transactions 2023 - Copy.xlsx";
-            Excel.Workbook targetworkbook = excelApp.Workbooks.Open(targetFilePath);
+            Excel.Workbook targetworkbook = targetexcelApp.Workbooks.Open(targetFilePath);
 
             Excel.Application storeApp = new Excel.Application();
             storeApp.Visible = true;
@@ -124,45 +125,146 @@ namespace Transaction
 
                 //copying data from storelist to transaction file
 
-                Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
-                Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
+                //Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
+                //Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
 
-                destinationSheet.Cells.Clear();
+                //Excel.Range clearRange = destinationSheet.Range["A1:O" + destinationSheet.Rows.Count];
+                //clearRange.ClearContents();
 
-                storeList.Cells.Copy(Type.Missing);
+                //Excel.Range usedRange = storeList.UsedRange;
+                //usedRange.Copy(Type.Missing);
 
-                Excel.Range destinationRange = destinationSheet.Cells;
-                destinationRange.PasteSpecial(XlPasteType.xlPasteAll);
+                //Excel.Range destinationRange = destinationSheet.Cells;
+                //destinationRange.PasteSpecial(Excel.XlPasteType.xlPasteValues);
 
-                targetworkbook.Save();
+                //targetworkbook.Save();
+
+
+                //Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
+                //Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
+
+                //destinationSheet.Cells.Clear();
+
+                //storeList.Cells.Copy(Type.Missing);
+
+                //Excel.Range destinationRange = destinationSheet.Cells;
+                //destinationRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                //targetworkbook.Save();
 
 
                 //Dynamic transaction sheet cells change with reference to site list sheet 
 
                 Worksheet siteList = targetworkbook.Worksheets["Site List"];
                 Worksheet transaction = targetworkbook.Worksheets["Transactions 2023"];
+              
 
-                Excel.Range transactionCellValue = transaction.Cells[19, 2];
-                var transvalue1 = transactionCellValue.Value;
+                Excel.Range columnARange = siteList.Columns["W"]; 
+                Excel.Range columnBRange = siteList.Columns["X"]; 
 
-                Excel.Range siteCellValue = siteList.Cells[9, 1];
-                var distValue1 = siteCellValue.Value;
+                Dictionary<string, List<string>> columnData = new Dictionary<string, List<string>>();
 
-                var value1 = distValue1[5];
-                var value2 = transvalue1[2];
+                bool breakLoop = false;
 
-                if(value1 != value2)
+                int rowCount = siteList.Cells[siteList.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row + 1;
+                for (int i = 8; i <= rowCount; i++)
                 {
-                    char[] transvalueChars = transvalue1.ToCharArray();
-                    transvalueChars[2] = value1;
-                    transvalue1 = new string(transvalueChars);
+                    string key = columnARange.Cells[i].Value?.ToString();
+                    string value = columnBRange.Cells[i].Value?.ToString();
 
-                    transactionCellValue.Value = transvalue1;
 
-                    targetworkbook.Save();
+
+
+                    if (key != null)
+                    {
+                        if (!columnData.ContainsKey(key))
+                        {
+                            columnData[key] = new List<string>();
+                        }
+
+                        if (!string.IsNullOrEmpty(value) && !columnData[key].Contains(value))
+                        {
+                            columnData[key].Add(value);
+                        }
+                    }
                 }
-                
-                
+
+                int startTransactionRow = 19;
+                int rowCounter = 0;
+                int srNo = 1;
+                int lastSrNo = 10;
+
+                foreach (var kvp in columnData)
+                {
+                    foreach (var value in kvp.Value)
+                    {
+                        if (srNo == lastSrNo)
+                        {
+                            Excel.Range currentRow = transaction.Rows[startTransactionRow + rowCounter];
+                            currentRow.Insert(Excel.XlInsertShiftDirection.xlShiftDown); // Insert a new row
+
+                            // Copy formulas from the above row (assuming the formulas are in columns A and B)
+                            Excel.Range aboveRow = transaction.Rows[startTransactionRow + rowCounter - 1];
+                            aboveRow.Copy(currentRow);
+                            
+
+                            srNo = lastSrNo; // Reset srNo after inserting the new row
+                            lastSrNo++;
+                        }
+
+                        transaction.Cells[startTransactionRow + rowCounter, "A"].Value = srNo;
+                        transaction.Cells[startTransactionRow + rowCounter, "B"].Value = value;
+                        srNo++;
+                        rowCounter++;
+                    }
+
+                    transaction.Cells[startTransactionRow + rowCounter, "B"].Value = kvp.Key;
+                    rowCounter++;
+                }
+
+
+                //foreach (var kvp in columnData)
+                //{
+                //    foreach (var value in kvp.Value)
+                //    {
+                //        //Console.WriteLine(value);
+                //        transaction.Cells[startTransactionRow + rowCounter, "A"].Value = srNo;
+                //        rowCounter++;
+                //        srNo++;
+
+                //        transaction.Cells[startTransactionRow + rowCounter, "B"].Value = value;
+                //        rowCounter++;
+                //    }
+                //    transaction.Cells[startTransactionRow + rowCounter, "B"].Value = kvp.Key;
+                //    rowCounter++;
+                //    //Console.WriteLine(kvp.Key);
+
+                //}
+
+
+
+
+                //Excel.Range transactionCellValue1 = transaction.Cells[19, 2];
+                //var transvalue1 = transactionCellValue1.Value;
+
+                //Excel.Range siteCellValue1 = siteList.Cells[9, 1];
+                //var distValue1 = siteCellValue1.Value;
+
+                //var dValue1 = distValue1.Substring(5, 2);
+                //var tValue1 = transvalue1.Substring(1, 2);
+
+                //if (dValue1 != tValue1)
+                //{
+                //    char[] transvalueChars = transvalue1.ToCharArray();
+                //    transvalueChars[1] = dValue1[0];
+                //    transvalueChars[2] = dValue1[1];
+
+                //    transvalue1 = new string(transvalueChars);
+
+                //    transactionCellValue1.Value = transvalue1;
+
+                //    targetworkbook.Save();
+                //}
 
 
             }
