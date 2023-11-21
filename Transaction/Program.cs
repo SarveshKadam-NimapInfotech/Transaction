@@ -37,19 +37,25 @@ namespace Transaction
             try
             {
 
-                /*//data transfer from one sales workbook to transaction workbook
+                //data transfer from one sales workbook to transaction workbook
 
                 Worksheet sourceSheet = workbook.Worksheets["2023"];
                 Worksheet targetSouth = targetworkbook.Worksheets["South 23"];
                 Worksheet targetNorth = targetworkbook.Worksheets["North 23"];
                 int southLastRow = targetSouth.Cells[targetSouth.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row + 1;
                 int northLastRow = targetNorth.Cells[targetNorth.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row + 1;
+                int lastFormulaRow = targetSouth.Cells[targetSouth.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
+                int lastFormulaColumn = targetSouth.Cells[lastFormulaRow, targetSouth.Columns.Count].End[Excel.XlDirection.xlToLeft].Column;
+                int lastNFormulaRow = targetNorth.Cells[targetNorth.Rows.Count, 1].End[Excel.XlDirection.xlUp].Row;
+                int lastNFormulaColumn = targetNorth.Cells[lastNFormulaRow, targetNorth.Columns.Count].End[Excel.XlDirection.xlToLeft].Column;
+
 
 
 
 
                 Range sourceRange = sourceSheet.Range[sourceSheet.Cells[1, 1], sourceSheet.Cells[1, sourceSheet.UsedRange.Column]];
                 int sourceLastRow = sourceSheet.Cells[sourceSheet.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row ;
+
 
 
                 var date = "10/23/2023";
@@ -75,13 +81,23 @@ namespace Transaction
                 rangeSouthFr.Copy(Type.Missing);
                 targetSouth.Cells[southLastRow, 1].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
 
-                var rangeSouthSc = sourceSheet.Range["G3:H" + sourceLastRow];
-                rangeSouthSc.Copy(Type.Missing);
-                targetSouth.Cells[southLastRow, 6].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+                sourceSheet.AutoFilterMode = false;
+
+                Excel.Range formulaCopyRange = targetSouth.Cells[lastFormulaRow, 6].Resize[1, lastFormulaColumn - 5];
+                formulaCopyRange.Copy(Type.Missing);
+                int newLastRow = targetSouth.Cells[targetSouth.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row;
+
+
+
+                Excel.Range formulaRange = targetSouth.Range[$"F{southLastRow}:U" + newLastRow];
+                formulaRange.PasteSpecial(XlPasteType.xlPasteFormulas, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
+                Excel.Range dateRange = targetSouth.Range[$"P{southLastRow}:P" + newLastRow];
+                dateRange.NumberFormat = "MM/dd/yy ddd";
+                dateRange.HorizontalAlignment = Excel.XlHAlign.xlHAlignCenter;
 
                 targetworkbook.Save();
 
-                sourceSheet.AutoFilterMode = false;
 
                 var northFilterlist = new object[]
                {
@@ -93,64 +109,63 @@ namespace Transaction
                 rangeNorthFr.Copy(Type.Missing);
                 targetNorth.Cells[northLastRow, 1].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
 
-                var rangeNorthSc = sourceSheet.Range["G3:G" + sourceLastRow];
-                rangeNorthSc.Copy(Type.Missing);
-                targetNorth.Cells[northLastRow, 18].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+                //var rangeNorthSc = sourceSheet.Range["G3:G" + sourceLastRow];
+                //rangeNorthSc.Copy(Type.Missing);
+                //targetNorth.Cells[northLastRow, 18].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
 
-                var rangeNorthTh= sourceSheet.Range["P3:P" + sourceLastRow];
-                rangeNorthTh.Copy(Type.Missing);
-                targetNorth.Cells[northLastRow, 29].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+                //var rangeNorthTh= sourceSheet.Range["P3:P" + sourceLastRow];
+                //rangeNorthTh.Copy(Type.Missing);
+                //targetNorth.Cells[northLastRow, 29].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
+
+                sourceSheet.AutoFilterMode = false;
+
+                Excel.Range formulaNCopyRange = targetNorth.Cells[lastNFormulaRow, 18].Resize[1, lastNFormulaColumn - 17];
+                formulaCopyRange.Copy(Type.Missing);
+                int newNLastRow = targetNorth.Cells[targetNorth.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row;
+
+
+
+                Excel.Range formulaNRange = targetNorth.Range[$"R{northLastRow}:AG" + newLastRow];
+                formulaNRange.PasteSpecial(XlPasteType.xlPasteFormulas, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
 
                 targetworkbook.Save();
 
-                sourceSheet.AutoFilterMode = false;
 
 
                 //code for date change
 
                 Worksheet targetSheet = targetworkbook.Worksheets["REF"];
-                Excel.Range dateCell = targetSheet.Cells[2, 1];
+                Excel.Range dateCell = targetSheet.Cells[2,1];
 
-                var dateString = "10/24/2023";
+                var dateString = "10/10/2023";
 
                 DateTime dateObj = DateTime.ParseExact(dateString, "MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture);
 
                 if (dateObj.DayOfWeek == DayOfWeek.Tuesday)
                 {
-                    dateCell.Value = date;
+                    dateCell.Value = dateString;
                     targetworkbook.Save();
                 }
-                */
 
 
                 //copying data from storelist to transaction file
 
-                //Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
-                //Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
+                Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
+                Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
 
-                //Excel.Range clearRange = destinationSheet.Range["A1:O" + destinationSheet.Rows.Count];
+                Excel.Range clearRange = destinationSheet.Range["B1:O" + destinationSheet.Rows.Count];
+                clearRange.Clear();
                 //clearRange.ClearContents();
 
-                //Excel.Range usedRange = storeList.UsedRange;
-                //usedRange.Copy(Type.Missing);
+                Excel.Range printRange = storeList.Range["A1:N" + storeList.Rows.Count];
+                printRange.Copy(Type.Missing);
 
-                //Excel.Range destinationRange = destinationSheet.Cells;
-                //destinationRange.PasteSpecial(Excel.XlPasteType.xlPasteValues);
+                Excel.Range destinationRange = destinationSheet.Range["B1:O" + destinationSheet.Rows.Count];
+                destinationRange.PasteSpecial(XlPasteType.xlPasteAll);
 
-                //targetworkbook.Save();
-
-
-                //Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
-                //Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
-
-                //destinationSheet.Cells.Clear();
-
-                //storeList.Cells.Copy(Type.Missing);
-
-                //Excel.Range destinationRange = destinationSheet.Cells;
-                //destinationRange.PasteSpecial(XlPasteType.xlPasteAll);
-
-                //targetworkbook.Save();
+                targetworkbook.Save();
 
 
                 //Dynamic transaction sheet cells change with reference to site list sheet 
@@ -200,15 +215,16 @@ namespace Transaction
                     {
                         if (srNo == lastSrNo)
                         {
-                            Excel.Range currentRow = transaction.Rows[startTransactionRow + rowCounter];
-                            currentRow.Insert(Excel.XlInsertShiftDirection.xlShiftDown); // Insert a new row
-
-                            // Copy formulas from the above row (assuming the formulas are in columns A and B)
                             Excel.Range aboveRow = transaction.Rows[startTransactionRow + rowCounter - 1];
-                            aboveRow.Copy(currentRow);
-                            
+                            aboveRow.Copy(Type.Missing);
+                            targetexcelApp.DisplayAlerts = false;
 
-                            srNo = lastSrNo; // Reset srNo after inserting the new row
+                            aboveRow.Insert(Excel.XlInsertShiftDirection.xlShiftDown);
+
+                            aboveRow.PasteSpecial(XlPasteType.xlPasteAll);
+
+
+                            srNo = lastSrNo; 
                             lastSrNo++;
                         }
 
@@ -222,50 +238,7 @@ namespace Transaction
                     rowCounter++;
                 }
 
-
-                //foreach (var kvp in columnData)
-                //{
-                //    foreach (var value in kvp.Value)
-                //    {
-                //        //Console.WriteLine(value);
-                //        transaction.Cells[startTransactionRow + rowCounter, "A"].Value = srNo;
-                //        rowCounter++;
-                //        srNo++;
-
-                //        transaction.Cells[startTransactionRow + rowCounter, "B"].Value = value;
-                //        rowCounter++;
-                //    }
-                //    transaction.Cells[startTransactionRow + rowCounter, "B"].Value = kvp.Key;
-                //    rowCounter++;
-                //    //Console.WriteLine(kvp.Key);
-
-                //}
-
-
-
-
-                //Excel.Range transactionCellValue1 = transaction.Cells[19, 2];
-                //var transvalue1 = transactionCellValue1.Value;
-
-                //Excel.Range siteCellValue1 = siteList.Cells[9, 1];
-                //var distValue1 = siteCellValue1.Value;
-
-                //var dValue1 = distValue1.Substring(5, 2);
-                //var tValue1 = transvalue1.Substring(1, 2);
-
-                //if (dValue1 != tValue1)
-                //{
-                //    char[] transvalueChars = transvalue1.ToCharArray();
-                //    transvalueChars[1] = dValue1[0];
-                //    transvalueChars[2] = dValue1[1];
-
-                //    transvalue1 = new string(transvalueChars);
-
-                //    transactionCellValue1.Value = transvalue1;
-
-                //    targetworkbook.Save();
-                //}
-
+                targetworkbook.Save();
 
             }
             finally
