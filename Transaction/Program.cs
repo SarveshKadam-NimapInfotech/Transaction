@@ -109,24 +109,15 @@ namespace Transaction
                 rangeNorthFr.Copy(Type.Missing);
                 targetNorth.Cells[northLastRow, 1].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
 
-                //var rangeNorthSc = sourceSheet.Range["G3:G" + sourceLastRow];
-                //rangeNorthSc.Copy(Type.Missing);
-                //targetNorth.Cells[northLastRow, 18].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
-
-                //var rangeNorthTh= sourceSheet.Range["P3:P" + sourceLastRow];
-                //rangeNorthTh.Copy(Type.Missing);
-                //targetNorth.Cells[northLastRow, 29].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
-
-
                 sourceSheet.AutoFilterMode = false;
 
                 Excel.Range formulaNCopyRange = targetNorth.Cells[lastNFormulaRow, 18].Resize[1, lastNFormulaColumn - 17];
-                formulaCopyRange.Copy(Type.Missing);
+                formulaNCopyRange.Copy(Type.Missing);
                 int newNLastRow = targetNorth.Cells[targetNorth.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row;
 
 
 
-                Excel.Range formulaNRange = targetNorth.Range[$"R{northLastRow}:AG" + newLastRow];
+                Excel.Range formulaNRange = targetNorth.Range[$"R{northLastRow}:AG" + newNLastRow];
                 formulaNRange.PasteSpecial(XlPasteType.xlPasteFormulas, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
 
 
