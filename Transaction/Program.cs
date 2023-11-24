@@ -4,10 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows.Input;
+using System.Windows.Media;
 using Microsoft.Office.Interop.Excel;
 using OfficeOpenXml;
 using static OfficeOpenXml.ExcelErrorValue;
 using Excel = Microsoft.Office.Interop.Excel;
+
 
 namespace Transaction
 {
@@ -36,6 +39,29 @@ namespace Transaction
 
             try
             {
+                //copying data from storelist to transaction file
+
+                Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
+                Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
+
+                Excel.Range clearRange = destinationSheet.Range["B1:AD" + destinationSheet.Rows.Count];
+                clearRange.Clear();
+                //clearRange.ClearContents();
+
+                Excel.Range printRange = storeList.Range["A1:N" + storeList.Rows.Count];
+                printRange.Copy(Type.Missing);
+
+                Excel.Range destinationRange = destinationSheet.Range["B1:O" + destinationSheet.Rows.Count];
+                destinationRange.PasteSpecial(XlPasteType.xlPasteAll);
+
+                Excel.Range printFormula = storeList.Range["O1:Y" + storeList.Rows.Count];
+                printFormula.Copy(Type.Missing);
+
+                Excel.Range destinationFormulaRange = destinationSheet.Range["P1:Z" + destinationSheet.Rows.Count];
+                destinationFormulaRange.PasteSpecial(XlPasteType.xlPasteFormulas, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
+                targetworkbook.Save();
+
 
                 //data transfer from one sales workbook to transaction workbook
 
@@ -50,15 +76,12 @@ namespace Transaction
                 int lastNFormulaColumn = targetNorth.Cells[lastNFormulaRow, targetNorth.Columns.Count].End[Excel.XlDirection.xlToLeft].Column;
 
 
-
-
-
                 Range sourceRange = sourceSheet.Range[sourceSheet.Cells[1, 1], sourceSheet.Cells[1, sourceSheet.UsedRange.Column]];
                 int sourceLastRow = sourceSheet.Cells[sourceSheet.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row ;
 
 
 
-                var date = "10/23/2023";
+                var date = "10/10/2023";
                 var FilterDate = new object[]
                {
                  date
@@ -109,15 +132,19 @@ namespace Transaction
                 rangeNorthFr.Copy(Type.Missing);
                 targetNorth.Cells[northLastRow, 1].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
 
+                var rangeNorthSn = sourceSheet.Range["G3:G" + sourceLastRow];
+                rangeNorthSn.Copy(Type.Missing);
+                targetNorth.Cells[northLastRow, 18].PasteSpecial(XlPasteType.xlPasteValues, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
+
                 sourceSheet.AutoFilterMode = false;
 
-                Excel.Range formulaNCopyRange = targetNorth.Cells[lastNFormulaRow, 18].Resize[1, lastNFormulaColumn - 17];
+                Excel.Range formulaNCopyRange = targetNorth.Cells[lastNFormulaRow, 20].Resize[1, lastNFormulaColumn - 19];
                 formulaNCopyRange.Copy(Type.Missing);
                 int newNLastRow = targetNorth.Cells[targetNorth.Rows.Count, 2].End[Excel.XlDirection.xlUp].Row;
 
 
 
-                Excel.Range formulaNRange = targetNorth.Range[$"R{northLastRow}:AG" + newNLastRow];
+                Excel.Range formulaNRange = targetNorth.Range[$"T{northLastRow}:AG" + newNLastRow];
                 formulaNRange.PasteSpecial(XlPasteType.xlPasteFormulas, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
 
 
@@ -139,24 +166,8 @@ namespace Transaction
                     dateCell.Value = dateString;
                     targetworkbook.Save();
                 }
+            
 
-
-                //copying data from storelist to transaction file
-
-                Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
-                Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
-
-                Excel.Range clearRange = destinationSheet.Range["B1:O" + destinationSheet.Rows.Count];
-                clearRange.Clear();
-                //clearRange.ClearContents();
-
-                Excel.Range printRange = storeList.Range["A1:N" + storeList.Rows.Count];
-                printRange.Copy(Type.Missing);
-
-                Excel.Range destinationRange = destinationSheet.Range["B1:O" + destinationSheet.Rows.Count];
-                destinationRange.PasteSpecial(XlPasteType.xlPasteAll);
-
-                targetworkbook.Save();
 
 
                 //Dynamic transaction sheet cells change with reference to site list sheet 
@@ -165,8 +176,8 @@ namespace Transaction
                 Worksheet transaction = targetworkbook.Worksheets["Transactions 2023"];
               
 
-                Excel.Range columnARange = siteList.Columns["W"]; 
-                Excel.Range columnBRange = siteList.Columns["X"]; 
+                Excel.Range columnARange = siteList.Columns["R"]; 
+                Excel.Range columnBRange = siteList.Columns["Q"]; 
 
                 Dictionary<string, List<string>> columnData = new Dictionary<string, List<string>>();
 
@@ -198,13 +209,13 @@ namespace Transaction
                 int startTransactionRow = 19;
                 int rowCounter = 0;
                 int srNo = 1;
-                int lastSrNo = 10;
+                int regionCounter = 29;
 
                 foreach (var kvp in columnData)
                 {
                     foreach (var value in kvp.Value)
                     {
-                        if (srNo == lastSrNo)
+                        if (transaction.Cells[startTransactionRow + rowCounter, "B"].Value == "R01" || transaction.Cells[startTransactionRow + rowCounter, "B"].Value == "R02")
                         {
                             Excel.Range aboveRow = transaction.Rows[startTransactionRow + rowCounter - 1];
                             aboveRow.Copy(Type.Missing);
@@ -214,19 +225,37 @@ namespace Transaction
 
                             aboveRow.PasteSpecial(XlPasteType.xlPasteAll);
 
-
-                            srNo = lastSrNo; 
-                            lastSrNo++;
                         }
 
+                        //transaction.Rows[startTransactionRow + rowCounter].Interior.Color = XlRgbColor.rgbWhite; 
                         transaction.Cells[startTransactionRow + rowCounter, "A"].Value = srNo;
                         transaction.Cells[startTransactionRow + rowCounter, "B"].Value = value;
                         srNo++;
                         rowCounter++;
-                    }
 
+                        
+                    }
+                    if (transaction.Cells[startTransactionRow + rowCounter, "B"].Value != "R01")
+                    {
+                        if (transaction.Cells[startTransactionRow + rowCounter, "B"].Value != "R02")
+                        {
+                            Excel.Range regionRow = transaction.Rows[startTransactionRow + rowCounter];
+                            targetexcelApp.DisplayAlerts = false;
+
+                            regionRow.Delete(Excel.XlDeleteShiftDirection.xlShiftUp);
+
+
+                        }
+
+                    }
+                    
+
+                    //transaction.Rows[startTransactionRow + rowCounter].Interior.Color = XlRgbColor.rgbYellow;
+                    //transaction.Cells[startTransactionRow + rowCounter, "A"].Value = null;
+                    //transaction.Cells[startTransactionRow + rowCounter, "C"].Value = null;
                     transaction.Cells[startTransactionRow + rowCounter, "B"].Value = kvp.Key;
                     rowCounter++;
+
                 }
 
                 targetworkbook.Save();
