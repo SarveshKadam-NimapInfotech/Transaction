@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataTransfer", "Transaction
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataChange", "DataChange\DataChange.csproj", "{2D0365FE-BCCE-4495-87B7-0FD40A4AF599}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Oledb", "Oledb\Oledb.csproj", "{E21C323F-5A5A-4ECC-999B-A9BD1482C93E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EpplusCode", "Oledb\EpplusCode.csproj", "{E21C323F-5A5A-4ECC-999B-A9BD1482C93E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

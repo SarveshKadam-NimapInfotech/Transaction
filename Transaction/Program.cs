@@ -14,6 +14,7 @@ using Excel = Microsoft.Office.Interop.Excel;
 
 namespace Transaction
 {
+    
     internal class Program
     {
         static void Main(string[] args)
@@ -22,17 +23,15 @@ namespace Transaction
             //opening the workbooks
 
             Excel.Application excelApp = new Excel.Application();
-            excelApp.Visible = true;
             string filePath = @"C:\Users\Nimap\Downloads\backups\Daily sales - Copy.xlsx";
             Excel.Workbook workbook = excelApp.Workbooks.Open(filePath);
 
-            //Excel.Application targetexcelApp = new Excel.Application();
-            //targetexcelApp.Visible = true;
+           Excel.Application targetexcelApp = new Excel.Application();
+            targetexcelApp.Visible = true;
             string targetFilePath = @"C:\Users\Nimap\Downloads\backups\Daily Transactions 2023 - Copy.xlsx";
             Excel.Workbook targetworkbook = excelApp.Workbooks.Open(targetFilePath);
 
-           // Excel.Application storeApp = new Excel.Application();
-            //storeApp.Visible = true;
+            Excel.Application storeApp = new Excel.Application();
             string storeFilepath = @"C:\Users\Nimap\Downloads\backups\StoreList - Copy.xlsx";
             Excel.Workbook storeWorkBook = excelApp.Workbooks.Open(storeFilepath);
 
@@ -72,7 +71,7 @@ namespace Transaction
                 destinationSheet.Range[$"Y75:Y{destinationSheet.UsedRange.Rows.Count}"].Formula = "=P75";
                 destinationSheet.Range[$"Z75:Z{destinationSheet.UsedRange.Rows.Count}"].Formula = "=Q75&Y75";
 
-                destinationSheet.Calculate();
+                //destinationSheet.Calculate();
 
                 //Worksheet storeList = storeWorkBook.Worksheets["StoreList"];
                 //Worksheet destinationSheet = targetworkbook.Worksheets["Site List"];
@@ -94,6 +93,8 @@ namespace Transaction
                 //destinationFormulaRange.PasteSpecial(XlPasteType.xlPasteFormulas, XlPasteSpecialOperation.xlPasteSpecialOperationNone, Type.Missing, Type.Missing);
 
                 //targetworkbook.Save();
+
+                var date = "10/10/2023";
 
 
                 //data transfer from one sales workbook to transaction workbook
@@ -192,13 +193,14 @@ namespace Transaction
 
 
                  //targetworkbook.Save();
+                
 
-                 
 
                 //code for date change
 
                 Worksheet targetSheet = targetworkbook.Worksheets["REF"];
                 Excel.Range dateCell = targetSheet.Cells[2,1];
+                //var date = "10/10/2023";
 
 
                 DateTime dateObj = DateTime.ParseExact(date, "MM/dd/yyyy", System.Globalization.CultureInfo.InvariantCulture);
@@ -266,7 +268,16 @@ namespace Transaction
                         }
                     }
                 }
-
+                foreach (var kvp in columnData)
+                {
+                    Console.WriteLine($"Key: {kvp.Key}");
+                    Console.WriteLine("Values:");
+                    foreach (var value in kvp.Value)
+                    {
+                        Console.WriteLine(value);
+                    }
+                    Console.WriteLine("------");
+                }
 
 
                 //for (int i = 9; i <= rowCount; i++)
@@ -323,16 +334,7 @@ namespace Transaction
                 //}
 
 
-                foreach (var kvp in columnData)
-                {
-                    Console.WriteLine($"Key: {kvp.Key}");
-                    Console.WriteLine("Values:");
-                    foreach (var value in kvp.Value)
-                    {
-                        Console.WriteLine(value);
-                    }
-                    Console.WriteLine("------");
-                }
+
 
                 int startTransactionRow = 19;
                 int rowCounter = 0;
@@ -387,6 +389,8 @@ namespace Transaction
                 }
 
                 targetworkbook.Save();
+
+              
 
             }
             finally
